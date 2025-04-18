@@ -12,7 +12,7 @@ A simple and minimal command-line todo manager written in Rust.
 
 ##  Description
 
-- Tasks are stored by date (e.g., `2025-04-19`) in a config file using the [`confy`](https://crates.io/crates/confy) crate.
+- Tasks are stored by date (local time) (e.g., `19 April 2025`) in a config file using the [`confy`](https://crates.io/crates/confy) crate.
 - Tasks can be added with content, marked as done, and listed.
 - "Spillover tasks" are tasks from previous days that were not marked as done.
 - All tasks are persisted automatically — no manual saving needed.
@@ -77,4 +77,10 @@ qq done --spill-over 1
 ### Get the config file path
 ```
 qq about
+```
+
+### Reset config
+Resets config and all data is deleted
+```
+qq reset
 ```
