@@ -15,10 +15,13 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    #[command(about = "Get qq's config file path")]
     About,
-    Add {
-        item: String,
-    },
+
+    #[command(about = "Add a new todo item")]
+    Add { item: String },
+
+    #[command(about = "Mark an item as done")]
     Done {
         #[arg(long, short, action)]
         spill_over: bool,
