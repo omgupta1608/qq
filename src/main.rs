@@ -1,7 +1,9 @@
 use clap::{Parser, Subcommand};
 use confy;
-use qq::config;
+use inquire::Text;
+use qq::config::{self};
 use std::error::Error;
+use std::fs;
 
 const APP_NAME: &str = "qq";
 
@@ -27,6 +29,9 @@ enum Command {
         spill_over: bool,
         item_index: usize,
     },
+
+    #[command(about = "Reset local data and config")]
+    Reset,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -60,6 +65,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                     current_cfg.mark_as_done(item_index)?;
                 }
                 current_cfg.print_items();
+            }
+            Command::Reset => {
+                let decision = Text::new("Are you sure? (y/n)").prompt();
+                match decision {
+                    Ok(d) => {
+                        if d != "y" && d != "n" {
+                            println!("invalid choice")
+                        } else if d == "y" {
+                            println!("deleting...");
+                            let file = confy::get_configuration_file_path(APP_NAME, None)?;
+                            fs::remove_file(file)?;
+                            println!("done. run 'qq' to reinitialize config");
+                        }
+                    }
+                    Err(_) => println!("something went wrong. please try again"),
+                }
             }
         },
     }
