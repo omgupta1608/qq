@@ -1,6 +1,12 @@
 # qq
 
-A simple and minimal command-line todo manager written in Rust.
+A simple and minimal command-line todo manager that I created for myself while learning and playing around with Rust and now I use qq almost daily.
+
+### Why the name qq?
+It's just simple to type.
+
+### v2 thoughts?
+I am thinking of adding the ability to save your data to the cloud so that it syncs across devices too.
 
 ---
 
