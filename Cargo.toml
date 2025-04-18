@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+chrono = "0.4.40"
 clap = { version = "4.5.18", features = ["derive"] }
 confy = "0.6.1"
 serde = { version = "1.0.219", features = ["derive"]}
+
+[lib]
+name = "qq"
+path = "src/lib/mod.rs"

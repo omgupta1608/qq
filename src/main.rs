@@ -2,7 +2,8 @@ use std::error::Error;
 
 use clap::{Parser, Subcommand};
 use confy;
-use serde::{Deserialize, Serialize};
+use qq::config;
+
 const APP_NAME: &str = "qq";
 
 #[derive(Parser)]
@@ -16,30 +17,20 @@ struct Cli {
 #[derive(Subcommand)]
 enum Command {
     About,
-    Add { item: i32 },
+    Add { item: String },
     Remove,
-}
-
-#[derive(Default, Serialize, Deserialize, Debug)]
-struct Config {
-    version: String,
-    items: Vec<i32>,
-}
-
-impl Config {
-    fn add(&mut self, item: i32) {
-        self.items.push(item);
-    }
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let mut current_cfg: Config = confy::load(APP_NAME, None)?;
+    // load current config
+    let mut current_cfg = config::main::load_current_config(APP_NAME)?;
+
     match cli.command {
         // default - lists items
         None => {
-            println!("{:?}", current_cfg.items)
+            current_cfg.print_items();
         }
         // executes subcommands
         Some(command) => match command {
@@ -48,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 println!("The qq config file path is: {:#?}", file);
             }
             Command::Add { item } => {
-                current_cfg.add(item);
+                current_cfg.add_item(item);
                 confy::store(APP_NAME, None, current_cfg)?;
             }
             Command::Remove => {
