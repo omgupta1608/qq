@@ -1,8 +1,7 @@
-use std::error::Error;
-
 use clap::{Parser, Subcommand};
 use confy;
 use qq::config;
+use std::error::Error;
 
 const APP_NAME: &str = "qq";
 
@@ -18,7 +17,7 @@ struct Cli {
 enum Command {
     About,
     Add { item: String },
-    Remove,
+    Done { item_index: usize },
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -39,13 +38,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 println!("The qq config file path is: {:#?}", file);
             }
             Command::Add { item } => {
-                current_cfg.add_item(item);
-                confy::store(APP_NAME, None, current_cfg)?;
+                current_cfg.add_item(item)?;
+                current_cfg.print_items();
             }
-            Command::Remove => {
-                println!("{APP_NAME} remove")
+            Command::Done { item_index } => {
+                current_cfg.mark_as_done(item_index)?;
+                current_cfg.print_items();
             }
         },
     }
+
     Ok(())
 }
