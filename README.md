@@ -26,10 +26,11 @@ A simple and minimal command-line todo manager written in Rust.
 2. Clone the repo and build it:
 
 ```bash
-git clone https://github.com/your-username/qq.git
+git clone https://github.com/omgupta1608/qq.git
 cd qq
 cargo build --release
 ```
+3. Add the binary to your path
 
 ## Usage
 
