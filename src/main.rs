@@ -16,8 +16,14 @@ struct Cli {
 #[derive(Subcommand)]
 enum Command {
     About,
-    Add { item: String },
-    Done { item_index: usize },
+    Add {
+        item: String,
+    },
+    Done {
+        #[arg(long, short, action)]
+        spill_over: bool,
+        item_index: usize,
+    },
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -41,8 +47,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 current_cfg.add_item(item)?;
                 current_cfg.print_items();
             }
-            Command::Done { item_index } => {
-                current_cfg.mark_as_done(item_index)?;
+            Command::Done {
+                item_index,
+                spill_over,
+            } => {
+                if spill_over {
+                    current_cfg.mark_spillover_as_done(item_index)?;
+                } else {
+                    current_cfg.mark_as_done(item_index)?;
+                }
                 current_cfg.print_items();
             }
         },

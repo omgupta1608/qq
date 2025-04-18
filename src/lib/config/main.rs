@@ -40,29 +40,35 @@ impl Config {
         self.data.get_mut(&self.current_date)
     }
 
-    pub fn get_status_items(&self, done: bool) -> Option<Vec<Item>> {
-        let mut status_items: Vec<Item> = vec![];
-        match self.get_all_items() {
-            Some(items) => {
-                for item in items.clone() {
-                    if item.done == done {
-                        status_items.push(item.clone());
+    pub fn get_all_spillover_refs(&self) -> Vec<(String, usize, &Item)> {
+        let mut result = vec![];
+
+        let mut dates: Vec<&String> = self
+            .data
+            .keys()
+            .filter(|d| *d != &self.current_date)
+            .collect();
+
+        dates.sort();
+
+        for date in dates {
+            if let Some(items) = self.data.get(date) {
+                for (i, item) in items.iter().enumerate() {
+                    if !item.done {
+                        result.push((date.clone(), i, item));
                     }
                 }
-                Some(status_items)
-            }
-            None => {
-                println!("no items found for today");
-                None
             }
         }
+
+        result
     }
 
     pub fn print_items(&self) {
         println!("Today is: {}\n", self.current_date);
         match self.get_all_items() {
             Some(items) => {
-                for (i, item) in items.clone().iter().enumerate() {
+                for (i, item) in items.iter().enumerate() {
                     if item.done {
                         println!("{}. {}", i + 1, item.content.green())
                     } else {
@@ -75,14 +81,19 @@ impl Config {
             }
         }
         println!("\n\n--- SPILL OVERS\n");
-        for (key, value) in self.data.clone().into_iter() {
-            if key != self.current_date {
-                for (i, item) in value.clone().iter().enumerate() {
-                    if !item.done {
-                        println!("{}. {}", i + 1, item.content.red())
-                    }
-                }
-            }
+        self.print_spillover_items();
+    }
+
+    pub fn print_spillover_items(&self) {
+        let spillover_items = self.get_all_spillover_refs();
+
+        if spillover_items.is_empty() {
+            println!("No spillover tasks 🎉");
+            return;
+        }
+
+        for (i, (date, _idx, item)) in spillover_items.iter().enumerate() {
+            println!("{}. {} ({})", i + 1, item.content, date);
         }
     }
 
@@ -101,19 +112,52 @@ impl Config {
         Ok(())
     }
 
+    pub fn mark_spillover_as_done(&mut self, item_index: usize) -> Result<(), Box<dyn Error>> {
+        if item_index == 0 {
+            return Err("Invalid index".into());
+        }
+
+        let mut dates: Vec<String> = self
+            .data
+            .keys()
+            .filter(|d| *d != &self.current_date)
+            .cloned()
+            .collect();
+
+        dates.sort();
+
+        let mut flat_index = 0;
+
+        for date in dates {
+            if let Some(items) = self.data.get_mut(date.as_str()) {
+                for i in 0..items.len() {
+                    if !items[i].done {
+                        flat_index += 1;
+
+                        if flat_index == item_index {
+                            items[i].mark_as_done();
+                            confy::store(APP_NAME, None, &self)?;
+                            return Ok(());
+                        }
+                    }
+                }
+            }
+        }
+
+        return Err("Invalid index".into());
+    }
+
     pub fn mark_as_done(&mut self, item_index: usize) -> Result<(), Box<dyn Error>> {
         match self.get_all_items_mut() {
             Some(items) => {
-                if item_index > items.len() {
-                    println!("invalid item index");
+                if item_index == 0 || item_index > items.len() {
+                    return Err("Invalid index".into());
                 } else {
                     items[item_index - 1].mark_as_done();
                     confy::store(APP_NAME, None, &self)?;
                 }
             }
-            None => {
-                println!("no items found for today")
-            }
+            None => println!("no items found for today"),
         }
         Ok(())
     }
