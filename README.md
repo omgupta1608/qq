@@ -1,6 +1,6 @@
 # qq
 
-A simple and minimal command-line todo manager that I created for myself while learning and playing around with Rust and now I use qq almost daily.
+A simple and minimal command-line todo manager that I created for myself while learning and playing around with Rust.
 
 ### Why the name qq?
 It's just simple to type.
