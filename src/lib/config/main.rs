@@ -1,4 +1,5 @@
 use chrono::Local;
+use colored::Colorize;
 use confy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -58,19 +59,29 @@ impl Config {
     }
 
     pub fn print_items(&self) {
-        println!("Today is: {}\n\n", self.current_date);
+        println!("Today is: {}\n", self.current_date);
         match self.get_all_items() {
             Some(items) => {
                 for (i, item) in items.clone().iter().enumerate() {
                     if item.done {
-                        println!("[x] {}. {}", i + 1, item.content)
+                        println!("{}. {}", i + 1, item.content.green())
                     } else {
-                        println!("[ ] {}. {}", i + 1, item.content)
+                        println!("{}. {}", i + 1, item.content)
                     }
                 }
             }
             None => {
                 println!("no items found for today")
+            }
+        }
+        println!("\n\n--- SPILL OVERS\n");
+        for (key, value) in self.data.clone().into_iter() {
+            if key != self.current_date {
+                for (i, item) in value.clone().iter().enumerate() {
+                    if !item.done {
+                        println!("{}. {}", i + 1, item.content.red())
+                    }
+                }
             }
         }
     }
